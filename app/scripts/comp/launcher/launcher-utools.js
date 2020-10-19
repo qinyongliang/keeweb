@@ -12,20 +12,9 @@ const Launcher = {
     autoTypeSupported: true,
     thirdPartyStoragesSupported: true,
     clipboardSupported: true,
-    req: window.require,
     platform() {
-        // return window.runtime().platform;
         return 'utools';
     },
-    electron() {
-        return this.req.electron;
-    },
-    // remoteApp() {
-    //     return this.electron().remote.app;
-    // },
-    // remReq(mod) {
-    //     return this.electron().remote.require(mod);
-    // },
     openLink(href) {
         if (/^(http|https|ftp|sftp|mailto):/i.test(href)) {
             window.utools.shellOpenExternal(href);
@@ -59,7 +48,7 @@ const Launcher = {
         return this.joinPath(window.utools.getPath('documents'), fileName || '');
     },
     getAppPath(fileName) {
-        const dirname = this.req.path.dirname;
+        const dirname = window.require.path.dirname;
         const appPath = __dirname.endsWith('app.asar')
             ? __dirname
             : window.utools.getPath('userData');
@@ -69,34 +58,34 @@ const Launcher = {
         return this.joinPath(window.runtime().cwd(), fileName || '');
     },
     joinPath(...parts) {
-        return this.req.path.join(...parts);
+        return window.require.path.join(...parts);
     },
     writeFile(path, data, callback) {
-        this.req.fs.writeFile(path, window.bufferFrom(data), callback);
+        window.require.fs.writeFile(path, window.bufferFrom(data), callback);
     },
     readFile(path, encoding, callback) {
-        this.req.fs.readFile(path, encoding, (err, contents) => {
+        window.require.fs.readFile(path, encoding, (err, contents) => {
             const data = typeof contents === 'string' ? contents : new Uint8Array(contents);
             callback(data, err);
         });
     },
     fileExists(path, callback) {
-        const fs = this.req.fs;
+        const fs = window.require.fs;
         fs.access(path, fs.constants.F_OK, (err) => callback(!err));
     },
     fileExistsSync(path) {
-        const fs = this.req.fs;
+        const fs = window.require.fs;
         return !fs.accessSync(path, fs.constants.F_OK);
     },
     deleteFile(path, callback) {
-        this.req.fs.unlink(path, callback || noop);
+        window.require.fs.unlink(path, callback || noop);
     },
     statFile(path, callback) {
-        this.req.fs.stat(path, (err, stats) => callback(stats, err));
+        window.require.fs.stat(path, (err, stats) => callback(stats, err));
     },
     mkdir(dir, callback) {
-        const fs = this.req.fs;
-        const path = this.req.path;
+        const fs = window.require.fs;
+        const path = window.require.path;
         const stack = [];
 
         const collect = function (dir, stack, callback) {
@@ -126,7 +115,7 @@ const Launcher = {
         collect(dir, stack, () => create(stack, callback));
     },
     parsePath(fileName) {
-        const path = this.req.path;
+        const path = window.require.path;
         return {
             path: fileName,
             dir: path.dirname(fileName),
@@ -134,7 +123,7 @@ const Launcher = {
         };
     },
     createFsWatcher(path) {
-        return this.req.fs.watch(path, { persistent: false });
+        return window.require.fs.watch(path, { persistent: false });
     },
     loadConfig(name) {
         return new Promise((resolve, reject) => {
@@ -150,17 +139,7 @@ const Launcher = {
             resolve();
         });
     },
-    ensureRunnable(path) {
-        if (window.runtime().platform !== 'win32') {
-            const fs = this.req.fs;
-            const stat = fs.statSync(path);
-            if ((stat.mode & 0o0111) === 0) {
-                const mode = stat.mode | 0o0100;
-                logger.info(`chmod 0${mode.toString(8)} ${path}`);
-                fs.chmodSync(path, mode);
-            }
-        }
-    },
+    ensureRunnable(path) {},
     preventExit(e) {
         e.returnValue = false;
         return false;
@@ -183,13 +162,12 @@ const Launcher = {
         return window.utools.copyText(text);
     },
     getClipboardText() {
-        return this.electron().clipboard.readText();
+        return window.require.clipboard.readText();
     },
     clearClipboardText() {
-        const { clipboard } = this.electron();
-        clipboard.clear();
+        window.require.clipboard.clear();
         if (window.runtime().platform === 'linux') {
-            clipboard.clear('selection');
+            window.require.clipboard.clear('selection');
         }
     },
     quitOnRealQuitEventIfMinimizeOnQuitIsEnabled() {

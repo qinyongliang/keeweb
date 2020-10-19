@@ -34,8 +34,8 @@ AutoTypeEmitter.prototype.copyPaste = function (text) {
         } else {
             window.utools.simulateKeyboardTap('v', 'ctrl');
         }
-        setTimeout(this.callback, 1);
-    }, 1);
+        setTimeout(this.callback, 20);
+    }, 10);
 };
 
 AutoTypeEmitter.prototype.wait = function (time) {
