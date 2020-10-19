@@ -1,0 +1,19 @@
+{
+	"pluginName": "keepass",
+	"description": "keeweb for utools",
+	"preload": "preload.js",
+	"main": "dist/index.html",
+	"version": "0.0.1",
+	"logo": "keepass.png",
+	"features": [
+		{
+			"code": "keepass",
+			"explain": "keepass",
+			"cmds": [
+				"密码",
+				"keepass",
+				"password"
+			]
+		}
+	]
+}

@@ -14,6 +14,7 @@ const SettingsManager = {
     activeTheme: null,
 
     allLocales: {
+        'zh-CN': '简体中文',
         'en': 'English',
         'de-DE': 'Deutsch',
         'fr-FR': 'Français'
