@@ -1,6 +1,8 @@
 {
 	"pluginName": "keepass",
 	"description": "keeweb for utools",
+	"author": "qinyongliang",
+	"homepage": "https://github.com/qinyongliang/",
 	"preload": "preload.js",
 	"main": "dist/index.html",
 	"version": "0.0.1",
