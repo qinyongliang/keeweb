@@ -63,6 +63,7 @@ class StorageWebDav extends StorageBase {
                 op: 'Load',
                 method: 'GET',
                 path,
+                nostat: true,
                 user: opts ? opts.user : null,
                 password: opts ? opts.password : null
             },

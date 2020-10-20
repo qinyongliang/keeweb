@@ -1,6 +1,55 @@
 import { Launcher } from 'comp/launcher';
 
 // https://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
+const shiftKeyMap = {
+    'A': 'a',
+    'B': 'b',
+    'C': 'c',
+    'D': 'd',
+    'E': 'e',
+    'F': 'f',
+    'G': 'g',
+    'H': 'h',
+    'I': 'i',
+    'J': 'j',
+    'K': 'k',
+    'L': 'l',
+    'M': 'm',
+    'N': 'n',
+    'O': 'o',
+    'P': 'p',
+    'Q': 'q',
+    'R': 'r',
+    'S': 's',
+    'T': 't',
+    'U': 'u',
+    'V': 'v',
+    'W': 'w',
+    'X': 'x',
+    'Y': 'y',
+    'Z': 'z',
+    '!': '1',
+    '@': '2',
+    '#': '3',
+    '$': '4',
+    '%': '5',
+    '^': '6',
+    '&': '7',
+    '*': '8',
+    '(': '9',
+    ')': '0',
+    '_': '-',
+    '+': '=',
+    '~': '`',
+    '<': ',',
+    '>': '.',
+    '?': '/',
+    '|': '\\',
+    ':': ';',
+    '"': "'",
+    '{': '[',
+    '}': ']'
+};
 
 const AutoTypeEmitter = function (callback) {
     this.callback = callback;
@@ -23,19 +72,25 @@ AutoTypeEmitter.prototype.text = function (text) {
 };
 
 AutoTypeEmitter.prototype.key = function sync(key) {
-    window.utools.simulateKeyboardTap(key);
+    if (shiftKeyMap[key]) {
+        window.utools.simulateKeyboardTap(shiftKeyMap[key], 'shift');
+        sleep(10);
+    } else {
+        window.utools.simulateKeyboardTap(key);
+    }
     this.callback();
 };
+
 AutoTypeEmitter.prototype.copyPaste = function (text) {
     Launcher.setClipboardText(text);
-    setTimeout(() => {
-        if (window.utools.isMacOs()) {
-            window.utools.simulateKeyboardTap('v', 'command');
-        } else {
-            window.utools.simulateKeyboardTap('v', 'ctrl');
-        }
-        setTimeout(this.callback, 20);
-    }, 10);
+    sleep(200);
+    if (window.utools.isMacOs()) {
+        window.utools.simulateKeyboardTap('v', 'command');
+    } else {
+        window.utools.simulateKeyboardTap('v', 'ctrl');
+    }
+    sleep(200);
+    this.callback();
 };
 
 AutoTypeEmitter.prototype.wait = function (time) {
@@ -54,5 +109,14 @@ AutoTypeEmitter.prototype.modStr = function () {
 AutoTypeEmitter.prototype.waitComplete = function (callback) {
     this.callback();
 };
+
+function sleep(sec) {
+    const startTime = new Date().getTime();
+    const stopTime = startTime + Math.floor(sec);
+    for (;;) {
+        const curTime = new Date().getTime();
+        if (stopTime <= curTime) break;
+    }
+}
 
 export { AutoTypeEmitter };
