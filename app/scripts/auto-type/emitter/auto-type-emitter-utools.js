@@ -84,11 +84,7 @@ AutoTypeEmitter.prototype.key = function sync(key) {
 AutoTypeEmitter.prototype.copyPaste = function (text) {
     Launcher.setClipboardText(text);
     sleep(200);
-    if (window.utools.isMacOs()) {
-        window.utools.simulateKeyboardTap('v', 'command');
-    } else {
-        window.utools.simulateKeyboardTap('v', 'ctrl');
-    }
+    window.utools.simulateKeyboardTap('v', window.utools.isMacOs() ? 'command' : 'ctrl');
     sleep(200);
     this.callback();
 };
