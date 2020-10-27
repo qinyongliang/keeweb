@@ -1,6 +1,6 @@
 {
 	"pluginName": "keepass",
-	"description": "keeweb for utools",
+	"description": "一款开源的密码管理工具",
 	"author": "qinyongliang",
 	"homepage": "https://github.com/qinyongliang/",
 	"preload": "preload.js",
