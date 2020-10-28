@@ -130,12 +130,14 @@ const Launcher = {
             resolve(window.utools.db.get(name)?.data);
         });
     },
-    saveConfig(name, data) {
+    saveConfig(_id, data) {
         return new Promise((resolve) => {
-            window.utools.db.put({
-                _id: name,
-                data
-            });
+            const last = window.utools.db.get(_id);
+            if (last) {
+                window.utools.db.put({ _id, data, _rev: last._rev });
+            } else {
+                window.utools.db.put({ _id, data });
+            }
             resolve();
         });
     },

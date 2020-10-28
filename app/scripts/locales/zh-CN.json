@@ -449,7 +449,7 @@
     "setGenReloadApp": "重新加载应用",
     "setFilePath": "文件路径",
     "setFileStorage": "文件加载自 {}。",
-    "setFileIntl": "文件保存在程序内部",
+    "setFileIntl": "文件保存在utools内，你可以开通会员达到多设备同步的目的",
     "setFileLocalHint": "希望与本地文件协同工作？",
     "setFileDownloadApp": "下载桌面应用程序",
     "setFileSave": "保存",

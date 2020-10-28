@@ -3,6 +3,7 @@ import { StorageCache } from 'storage/impl/storage-cache';
 import { StorageDropbox } from 'storage/impl/storage-dropbox';
 import { StorageFile } from 'storage/impl/storage-file';
 import { StorageFileCache } from 'storage/impl/storage-file-cache';
+import { StorageUtools } from 'storage/impl/storage-utools';
 import { StorageGDrive } from 'storage/impl/storage-gdrive';
 import { StorageOneDrive } from 'storage/impl/storage-onedrive';
 import { StorageWebDav } from 'storage/impl/storage-webdav';
@@ -10,7 +11,11 @@ import { createOAuthSession } from 'storage/pkce';
 
 const BuiltInStorage = {
     file: new StorageFile(),
-    cache: Launcher ? new StorageFileCache() : new StorageCache()
+    cache: window.utools
+        ? new StorageUtools()
+        : Launcher
+        ? new StorageFileCache()
+        : new StorageCache()
 };
 
 const ThirdPartyStorage = {
