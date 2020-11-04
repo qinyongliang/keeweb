@@ -65,7 +65,7 @@ const DefaultAppSettings = {
     dropboxSecret: null, // custom Dropbox app secret
 
     webdav: true, // enable WebDAV integration
-    webdavSaveMethod: 'move', // how to save files with WebDAV: "move" or "put"
+    webdavSaveMethod: 'put', // how to save files with WebDAV: "move" or "put"
 
     gdrive: true, // enable Google Drive integration
     gdriveClientId: null, // custom Google Drive client id

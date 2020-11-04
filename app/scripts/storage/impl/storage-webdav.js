@@ -103,7 +103,8 @@ class StorageWebDav extends StorageBase {
         const saveOpts = {
             path,
             user: opts ? opts.user : null,
-            password: opts ? opts.password : null
+            password: opts ? opts.password : null,
+            nostat: true
         };
         const that = this;
         this._request(
@@ -121,9 +122,6 @@ class StorageWebDav extends StorageBase {
                         that.logger.debug('Save: not found, creating');
                         useTmpPath = false;
                     }
-                } else if (stat.rev !== rev) {
-                    that.logger.debug('Save error', path, 'rev conflict', stat.rev, rev);
-                    return cb({ revConflict: true }, xhr, stat);
                 }
                 if (useTmpPath) {
                     that._request(
@@ -155,22 +153,6 @@ class StorageWebDav extends StorageBase {
                                         });
                                         return cb(err, xhr, stat);
                                     }
-                                    if (stat.rev !== rev) {
-                                        that.logger.debug(
-                                            'Save error',
-                                            path,
-                                            'rev conflict',
-                                            stat.rev,
-                                            rev
-                                        );
-                                        that._request({
-                                            ...saveOpts,
-                                            op: 'Save:delete',
-                                            method: 'DELETE',
-                                            path: tmpPath
-                                        });
-                                        return cb({ revConflict: true }, xhr, stat);
-                                    }
                                     let movePath = path;
                                     if (movePath.indexOf('://') < 0) {
                                         if (movePath.indexOf('/') === 0) {
@@ -185,27 +167,37 @@ class StorageWebDav extends StorageBase {
                                     that._request(
                                         {
                                             ...saveOpts,
-                                            op: 'Save:move',
-                                            method: 'MOVE',
-                                            path: tmpPath,
-                                            nostat: true,
-                                            headers: {
-                                                Destination: encodeURI(movePath),
-                                                'Overwrite': 'T'
-                                            }
+                                            op: 'Save:delete',
+                                            method: 'DELETE',
+                                            path: movePath
                                         },
-                                        (err) => {
-                                            if (err) {
-                                                return cb(err);
-                                            }
+                                        () => {
                                             that._request(
                                                 {
                                                     ...saveOpts,
-                                                    op: 'Save:stat',
-                                                    method: 'HEAD'
+                                                    op: 'Save:move',
+                                                    method: 'MOVE',
+                                                    path: tmpPath,
+                                                    nostat: true,
+                                                    headers: {
+                                                        Destination: encodeURI(movePath),
+                                                        'Overwrite': 'T'
+                                                    }
                                                 },
-                                                (err, xhr, stat) => {
-                                                    cb(err, xhr, stat);
+                                                (err) => {
+                                                    if (err) {
+                                                        return cb(err);
+                                                    }
+                                                    that._request(
+                                                        {
+                                                            ...saveOpts,
+                                                            op: 'Save:stat',
+                                                            method: 'HEAD'
+                                                        },
+                                                        (err, xhr, stat) => {
+                                                            cb(err, xhr, stat);
+                                                        }
+                                                    );
                                                 }
                                             );
                                         }
