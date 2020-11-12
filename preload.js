@@ -1,7 +1,8 @@
 window.require = {
-    'clipboard':require('electron').clipboard,
-    'path':require('path'),
-    'fs':require('fs'),
+    'clipboard': require('electron').clipboard,
+    'path': require('path'),
+    'fs': require('fs'),
+    'http': require('http')
 };
 window.bufferFrom = Buffer.from;
-window.runtime = ()=> process;
+window.runtime = () => process;

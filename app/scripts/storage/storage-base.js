@@ -98,7 +98,11 @@ class StorageBase {
     }
 
     _httpRequest(config, onLoad) {
-        const httpRequest = Features.isDesktop ? this._httpRequestLauncher : this._httpRequestWeb;
+        const httpRequest = Features.isDesktop
+            ? window.utools
+                ? this._httpRequestWeb
+                : this._httpRequestLauncher
+            : this._httpRequestWeb;
         httpRequest.call(this, config, onLoad);
     }
 

@@ -12,6 +12,9 @@ const Launcher = {
     autoTypeSupported: true,
     thirdPartyStoragesSupported: true,
     clipboardSupported: true,
+    req(req) {
+        return window.require[req];
+    },
     platform() {
         return 'utools';
     },

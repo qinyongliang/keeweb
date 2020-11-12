@@ -1,7 +1,10 @@
 const MobileRegex = /iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile|WPDesktop|Windows Phone|webOS/i;
 const MinDesktopScreenWidth = 800;
 
-const isDesktop = !!(window.process && window.process.versions && window.process.versions.electron);
+const isDesktop = !!(
+    (window.process && window.process.versions && window.process.versions.electron) ||
+    window.utools
+);
 
 const Features = {
     isDesktop,
