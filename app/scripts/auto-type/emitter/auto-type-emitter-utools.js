@@ -1,4 +1,5 @@
 import { Launcher } from 'comp/launcher';
+import { SimulateKeys } from 'comp/app/simulate-keys';
 
 // https://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
 const shiftKeyMap = {
@@ -51,40 +52,78 @@ const shiftKeyMap = {
     '}': ']'
 };
 
+const KeyMap = {
+    pgup: 'pageup',
+    pgdn: 'pagedown',
+    ins: 'insert',
+    del: 'delete',
+    bs: 'backspace'
+};
+
+const ModMap = {
+    '^': 'command',
+    '+': 'shift',
+    '%': 'alt',
+    '^^': 'ctrl'
+};
+
 const AutoTypeEmitter = function (callback) {
     this.callback = callback;
     this.mod = {};
     this.pendingScript = [];
 };
 
-AutoTypeEmitter.prototype.setMod = function (mod, enabled) {};
+AutoTypeEmitter.prototype.setMod = function (mod, enabled) {
+    if (enabled) {
+        this.mod[ModMap[mod]] = true;
+    } else {
+        delete this.mod[ModMap[mod]];
+    }
+};
 
 AutoTypeEmitter.prototype.text = function (text) {
     if (text) {
-        if (text.length > 1) {
-            this.copyPaste(text);
+        const hot = Object.keys(this.mod);
+        if (hot && hot.length > 0) {
+            const keys = [...text.split(''), ...hot].map(this.doKeyMap).map((v) => `'${v}'`);
+            // eslint-disable-next-line no-eval
+            eval(`window.utools.simulateKeyboardTap(${keys.join(',')})`);
+            this.callback();
         } else {
-            this.key(text);
+            if (text.length > 1) {
+                this.copyPaste(text);
+            } else {
+                this.key(text);
+            }
         }
     } else {
         this.callback();
     }
 };
 
+AutoTypeEmitter.prototype.doKeyMap = function (key) {
+    if (KeyMap[key]) {
+        return KeyMap[key];
+    }
+    return key;
+};
+
 AutoTypeEmitter.prototype.key = function sync(key) {
+    key = this.doKeyMap(key);
     if (shiftKeyMap[key]) {
         window.utools.simulateKeyboardTap(shiftKeyMap[key], 'shift');
-        sleep(10);
     } else {
         window.utools.simulateKeyboardTap(key);
     }
+    sleep(10);
     this.callback();
 };
 
 AutoTypeEmitter.prototype.copyPaste = function (text) {
     Launcher.setClipboardText(text);
     sleep(200);
-    window.utools.simulateKeyboardTap('v', window.utools.isMacOs() ? 'command' : 'ctrl');
+    const keys = SimulateKeys.simulateKey('copyPaste').split('+');
+    window.utools.simulateKeyboardTap(keys[1], keys[0]);
     sleep(200);
     this.callback();
 };

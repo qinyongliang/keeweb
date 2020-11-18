@@ -6,6 +6,8 @@
     <div><span class="shortcut">{{cmd}}F</span> {{res 'setShFind'}}</div>
     <div><span class="shortcut">esc</span> {{res 'setShClearSearch'}}</div>
     <div><span class="shortcut">{{cmd}}C</span> {{res 'setShCopyPass'}}</div>
+    <div><button class="simulate btn-silent"
+                     data-simulate="copyPaste">{{copyPaste}}</button> {{res 'setShCopyPaste'}}</div>
     <div><span class="shortcut">{{cmd}}B</span> {{res 'setShCopyUser'}}</div>
     <div><span class="shortcut">{{cmd}}U</span> {{res 'setShCopyUrl'}}</div>
     {{#if autoTypeSupported}}

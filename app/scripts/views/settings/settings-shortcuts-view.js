@@ -1,5 +1,6 @@
 import { View } from 'framework/views/view';
 import { Shortcuts } from 'comp/app/shortcuts';
+import { SimulateKeys } from 'comp/app/simulate-keys';
 import { Launcher } from 'comp/launcher';
 import { Keys } from 'const/keys';
 import { Features } from 'util/features';
@@ -28,7 +29,8 @@ class SettingsShortcutsView extends View {
     ];
 
     events = {
-        'click button.shortcut': 'shortcutClick'
+        'click button.shortcut': 'shortcutClick',
+        'click button.simulate': 'simulateClick'
     };
 
     render() {
@@ -37,16 +39,18 @@ class SettingsShortcutsView extends View {
             alt: Shortcuts.altShortcutSymbol(true),
             globalIsLarge: !Features.isMac,
             autoTypeSupported: !!Launcher,
-            globalShortcuts: Launcher
-                ? {
-                      autoType: Shortcuts.globalShortcutText('autoType', true),
-                      copyPassword: Shortcuts.globalShortcutText('copyPassword', true),
-                      copyUser: Shortcuts.globalShortcutText('copyUser', true),
-                      copyUrl: Shortcuts.globalShortcutText('copyUrl', true),
-                      copyOtp: Shortcuts.globalShortcutText('copyOtp', true),
-                      restoreApp: Shortcuts.globalShortcutText('restoreApp', true)
-                  }
-                : undefined
+            copyPaste: SimulateKeys.simulateKeyText('copyPaste', true),
+            globalShortcuts:
+                Launcher && !window.utools
+                    ? {
+                          autoType: Shortcuts.globalShortcutText('autoType', true),
+                          copyPassword: Shortcuts.globalShortcutText('copyPassword', true),
+                          copyUser: Shortcuts.globalShortcutText('copyUser', true),
+                          copyUrl: Shortcuts.globalShortcutText('copyUrl', true),
+                          copyOtp: Shortcuts.globalShortcutText('copyOtp', true),
+                          restoreApp: Shortcuts.globalShortcutText('restoreApp', true)
+                      }
+                    : undefined
         });
     }
 
@@ -99,6 +103,55 @@ class SettingsShortcutsView extends View {
             const isValid = shortcut.valid && !exists;
             if (isValid) {
                 Shortcuts.setGlobalShortcut(globalShortcutType, shortcut.value);
+                this.render();
+            }
+        });
+    }
+
+    simulateClick(e) {
+        const simulateType = e.target.dataset.simulate;
+
+        const existing = $(`.simulate__editor[data-simulate=${simulateType}]`);
+        if (existing.length) {
+            existing.remove();
+            return;
+        }
+
+        const simulateEditor = $('<div/>')
+            .addClass('simulate__editor')
+            .attr('data-simulate', simulateType);
+        $('<div/>').text(Locale.setShEdit).appendTo(simulateEditor);
+        const simulateEditorInput = $('<input/>')
+            .addClass('simulate__editor-input')
+            .val(SimulateKeys.simulateKeyText(simulateType))
+            .appendTo(simulateEditor);
+        if (!Features.isMac) {
+            simulateEditorInput.addClass('simulate__editor-input--large');
+        }
+
+        simulateEditor.insertAfter($(e.target).parent());
+        simulateEditorInput.focus();
+        simulateEditorInput.on('keypress', (e) => e.preventDefault());
+        simulateEditorInput.on('keydown', (e) => {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            if (e.which === Keys.DOM_VK_DELETE || e.which === Keys.DOM_VK_BACK_SPACE) {
+                SimulateKeys.setSimulateKey(simulateType, undefined);
+                this.render();
+                return;
+            }
+            if (e.which === Keys.DOM_VK_ESCAPE) {
+                simulateEditorInput.blur();
+                return;
+            }
+
+            const simulateKey = SimulateKeys.keyEventToSimulateKey(e);
+
+            simulateEditorInput.val(SimulateKeys.presentSimulateKey(simulateKey.value));
+
+            if (simulateKey.valid) {
+                SimulateKeys.setSimulateKey(simulateType, simulateKey.value);
                 this.render();
             }
         });

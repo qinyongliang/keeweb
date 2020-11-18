@@ -539,6 +539,7 @@
     "setShCopyOtp": "复制一次性密码",
     "setShAutoTypeGlobal": "自动输入",
     "setShCopyPassOnly": "复制密码",
+    "setShCopyPaste": "模拟粘贴的按键",
     "setShRestoreApp": "打开 {}",
     "setShGlobal": "当应用在后台运行时，这些系统快捷键会生效。 您可以单击它们选择您自己的快捷键。",
     "setShLock": "锁定数据库",
