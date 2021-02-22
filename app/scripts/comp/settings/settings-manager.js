@@ -2,33 +2,27 @@ import { Events } from 'framework/events';
 import { Features } from 'util/features';
 import { Locale } from 'util/locale';
 
-const appleThemes = {
-    macdark: 'setGenThemeMacDark'
-};
-
-const extraThemes = Features.isMac || Features.isiOS ? appleThemes : {};
-
 const SettingsManager = {
     neutralLocale: null,
-    activeLocale: 'en',
+    activeLocale: 'en-US',
     activeTheme: null,
 
     allLocales: {
         'zh-CN': '简体中文',
-        'en': 'English',
+        'en-US': 'English',
         'de-DE': 'Deutsch',
         'fr-FR': 'Français'
     },
 
     allThemes: {
+        dark: 'setGenThemeDark',
+        light: 'setGenThemeLight',
         fb: 'setGenThemeFb',
         db: 'setGenThemeDb',
         sd: 'setGenThemeSd',
         sl: 'setGenThemeSl',
-        wh: 'setGenThemeWh',
         te: 'setGenThemeTe',
-        hc: 'setGenThemeHc',
-        ...extraThemes
+        hc: 'setGenThemeHc'
     },
 
     customLocales: {},
@@ -47,7 +41,7 @@ const SettingsManager = {
     },
 
     getDefaultTheme() {
-        return Features.isMac ? 'macdark' : 'fb';
+        return 'dark';
     },
 
     setTheme(theme) {
@@ -84,7 +78,7 @@ const SettingsManager = {
             return;
         }
         let localeValues;
-        if (loc !== 'en') {
+        if (loc !== 'en-US') {
             if (this.customLocales[loc]) {
                 localeValues = this.customLocales[loc];
             } else {
@@ -101,8 +95,8 @@ const SettingsManager = {
 
     getBrowserLocale() {
         const language = (navigator.languages && navigator.languages[0]) || navigator.language;
-        if (language && language.lastIndexOf('en', 0) === 0) {
-            return 'en';
+        if (language && language.startsWith('en')) {
+            return 'en-US';
         }
         return language;
     }

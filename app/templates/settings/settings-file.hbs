@@ -26,14 +26,13 @@
         <h2>{{res 'setFileSaveTo'}}</h2>
         {{#ifneq storage 'file'}}
         <div class="settings__file-save-to settings__file-save-to-file">
-            <i class="fa fa-file-text-o"></i>{{Res 'file'}}
+            <i class="fa fa-file-alt"></i>{{Res 'file'}}
         </div>
         {{/ifneq}}
         {{#each storageProviders as |prv|}}
             {{#unless prv.own}}
-            <div class="settings__file-save-to settings__file-save-to-storage svg-btn" data-storage="{{prv.name}}">
+            <div class="settings__file-save-to settings__file-save-to-storage" data-storage="{{prv.name}}">
                 {{#if prv.icon}}<i class="fa fa-{{prv.icon}}"></i>{{/if}}
-                {{#if prv.iconSvg}}{{{svg prv.iconSvg}}}{{/if}}
                 <span>{{res prv.name}}</span>
             </div>
             {{/unless}}
@@ -59,7 +58,7 @@
     <h2>{{res 'settings'}}</h2>
     <label for="settings__file-master-pass" class="settings__file-master-pass-label input-base">{{res 'setFilePass'}}:
         <span class="settings__file-master-pass-warning">
-            <i class="fa fa-warning"></i> <span id="settings__file-master-pass-warning-text">{{res 'setFilePassChange'}}</span>
+            <i class="fa fa-exclamation-triangle"></i> <span id="settings__file-master-pass-warning-text">{{res 'setFilePassChange'}}</span>
         </span>
     </label>
     <div class="hide">
@@ -71,7 +70,7 @@
     <div id="settings__file-confirm-master-pass-group">
         <label for="settings__file-confirm-master-pass" class="settings__file-master-pass-label input-base">{{res 'setFileConfirmPass'}}:
             <span class="settings__file-confirm-master-pass-warning">
-                <i class="fa fa-warning"></i> {{res 'setFilePassNotMatch'}}
+                <i class="fa fa-exclamation-triangle"></i> {{res 'setFilePassNotMatch'}}
             </span>
         </label>
         <input type="password" class="settings__input input-base" id="settings__file-confirm-master-pass" autocomplete="confirm-password" />
@@ -166,7 +165,8 @@
     <label for="settings__file-kdf">{{res 'setFileKdfParams'}}</label>
     <select class="settings__select input-base" id="settings__file-kdf" {{#ifneq formatVersion 4}}disabled{{/ifneq}}>
         <option value="Aes" {{#ifeq kdfName 'AES'}}selected{{/ifeq}}>AES</option>
-        {{#ifeq formatVersion 4}}<option value="Argon2" {{#ifeq kdfName 'Argon2'}}selected{{/ifeq}}>Argon2</option>{{/ifeq}}
+        {{#ifeq formatVersion 4}}<option value="Argon2d" {{#ifeq kdfName 'Argon2d'}}selected{{/ifeq}}>Argon2d</option>{{/ifeq}}
+        {{#ifeq formatVersion 4}}<option value="Argon2id" {{#ifeq kdfName 'Argon2id'}}selected{{/ifeq}}>Argon2id</option>{{/ifeq}}
     </select>
     {{#if keyEncryptionRounds}}
     <label for="settings__file-key-rounds">{{res 'setFileRounds'}}:</label>
@@ -179,7 +179,7 @@
                        id="settings__file-kdf-rounds" data-field="rounds" value="{{kdfParameters.rounds}}" maxlength="10" />
             </div>
         {{/ifeq}}
-        {{#ifeq kdfName 'Argon2'}}
+        {{#if isArgon2Kdf}}
             <div class="settings__row">
                 <div class="settings__col-small">
                     <label class="settings__col-small-label" for="settings__file-kdf-iter">{{res 'setFileKdfParamsIter'}}:</label>
@@ -197,7 +197,7 @@
                            data-field="parallelism" id="settings__file-kdf-par" value="{{kdfParameters.parallelism}}" maxlength="2" />
                 </div>
             </div>
-        {{/ifeq}}
+        {{/if}}
     {{/if}}
 
     <label for="settings__file-key-change-force">{{res 'setFileKeyChangeForce'}}:</label>

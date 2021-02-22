@@ -382,11 +382,14 @@ class AppView extends View {
             if (Launcher) {
                 if (!this.exitAlertShown) {
                     if (this.model.settings.autoSave) {
-                        this.saveAndLock((result) => {
-                            if (result) {
-                                exit();
-                            }
-                        });
+                        this.saveAndLock(
+                            (result) => {
+                                if (result) {
+                                    exit();
+                                }
+                            },
+                            { appClosing: true }
+                        );
                         return Launcher.preventExit(e);
                     }
                     this.exitAlertShown = true;
@@ -400,11 +403,14 @@ class AppView extends View {
                         ],
                         success: (result) => {
                             if (result === 'save') {
-                                this.saveAndLock((result) => {
-                                    if (result) {
-                                        exit();
-                                    }
-                                });
+                                this.saveAndLock(
+                                    (result) => {
+                                        if (result) {
+                                            exit();
+                                        }
+                                    },
+                                    { appClosing: true }
+                                );
                             } else {
                                 exit();
                             }
@@ -427,6 +433,7 @@ class AppView extends View {
             minimizeInsteadOfClose
         ) {
             Launcher.minimizeApp();
+            this.appMinimized();
             return Launcher.preventExit(e);
         }
     }
@@ -530,10 +537,9 @@ class AppView extends View {
         }
     }
 
-    saveAndLock(complete) {
+    saveAndLock(complete, options) {
         let pendingCallbacks = 0;
         const errorFiles = [];
-        const that = this;
         this.model.files.forEach(function (file) {
             if (!file.dirty) {
                 return;
@@ -549,22 +555,42 @@ class AppView extends View {
                 errorFiles.push(file.name);
             }
             if (--pendingCallbacks === 0) {
-                if (errorFiles.length && that.model.files.hasDirtyFiles()) {
+                if (errorFiles.length && this.model.files.hasDirtyFiles()) {
                     if (!Alerts.alertDisplayed) {
-                        const alertBody =
+                        const buttons = [Alerts.buttons.ok];
+                        const errorStr =
                             errorFiles.length > 1
                                 ? Locale.appSaveErrorBodyMul
                                 : Locale.appSaveErrorBody;
+                        let body = errorStr + ' ' + errorFiles.join(', ') + '.';
+                        if (options?.appClosing) {
+                            buttons.unshift({
+                                result: 'ignore',
+                                title: Locale.appSaveErrorExitLoseChanges,
+                                error: true
+                            });
+                            body += '\n' + Locale.appSaveErrorExitLoseChangesBody;
+                        }
                         Alerts.error({
                             header: Locale.appSaveError,
-                            body: alertBody + ' ' + errorFiles.join(', ')
+                            body,
+                            buttons,
+                            complete: (res) => {
+                                if (res === 'ignore') {
+                                    this.model.closeAllFiles();
+                                    complete(true);
+                                } else {
+                                    complete(false);
+                                }
+                            }
                         });
-                    }
-                    if (complete) {
-                        complete(false);
+                    } else {
+                        if (complete) {
+                            complete(false);
+                        }
                     }
                 } else {
-                    that.closeAllFilesAndShowFirst();
+                    this.closeAllFilesAndShowFirst();
                     if (complete) {
                         complete(true);
                     }

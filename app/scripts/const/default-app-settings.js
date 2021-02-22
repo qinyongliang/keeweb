@@ -9,7 +9,7 @@ const DefaultAppSettings = {
     clipboardSeconds: 0, // number of seconds after which the clipboard will be cleared
     autoSave: true, // auto-save open files
     autoSaveInterval: 0, // interval between performing automatic sync, minutes
-    rememberKeyFiles: false, // remember keyfiles selected on the Open screen
+    rememberKeyFiles: 'path', // remember keyfiles selected on the Open screen
     idleMinutes: 15, // app lock timeout after inactivity, minutes
     minimizeOnClose: false, // minimise the app instead of closing
     tableView: false, // view entries as a table instead of list
@@ -35,7 +35,6 @@ const DefaultAppSettings = {
     allowIframes: false, // allow displaying the app in IFrames
     useGroupIconForEntries: false, // automatically use group icon when creating new entries
     enableUsb: true, // enable interaction with USB devices
-    nativeArgon2: true, // use native argon2 module
     fieldLabelDblClickAutoType: false, // trigger auto-type by doubleclicking field label
 
     yubiKeyShowIcon: true, // show an icon to open OTP codes from YubiKey
@@ -66,6 +65,7 @@ const DefaultAppSettings = {
 
     webdav: true, // enable WebDAV integration
     webdavSaveMethod: 'put', // how to save files with WebDAV: "move" or "put"
+    webdavStatReload: false, // WebDAV: reload the file instead of relying on Last-Modified
 
     gdrive: true, // enable Google Drive integration
     gdriveClientId: null, // custom Google Drive client id

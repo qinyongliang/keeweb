@@ -434,7 +434,7 @@ class Plugin extends Model {
         delete SettingsManager.allLocales[locale.name];
         delete SettingsManager.customLocales[locale.name];
         if (SettingsManager.activeLocale === locale.name) {
-            AppSettingsModel.locale = 'en';
+            AppSettingsModel.locale = 'en-US';
         }
     }
 
@@ -445,7 +445,7 @@ class Plugin extends Model {
     removeTheme(theme) {
         delete SettingsManager.allThemes[theme.name];
         if (AppSettingsModel.theme === theme.name) {
-            AppSettingsModel.theme = 'fb';
+            AppSettingsModel.theme = SettingsManager.getDefaultTheme();
         }
         delete BaseLocale[this.getThemeLocaleKey(theme.name)];
     }

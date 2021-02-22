@@ -15,7 +15,6 @@ const MaxRequestRetries = 3;
 class StorageBase {
     name = null;
     icon = null;
-    iconSvg = null;
     enabled = false;
     system = false;
     uipos = null;
@@ -248,7 +247,8 @@ class StorageBase {
             'state': session.state,
             'redirect_uri': session.redirectUri,
             'response_type': 'code',
-            ...pkceParams
+            ...pkceParams,
+            ...opts.urlParams
         });
 
         if (listener) {
@@ -401,7 +401,7 @@ class StorageBase {
             skipAuth: true,
             data: UrlFormat.buildFormData({
                 'client_id': config.clientId,
-                'client_secret': config.clientSecret,
+                ...(config.clientSecret ? { 'client_secret': config.clientSecret } : null),
                 'grant_type': 'authorization_code',
                 'code': result.code,
                 'redirect_uri': session.redirectUri,
@@ -434,7 +434,7 @@ class StorageBase {
             skipAuth: true,
             data: UrlFormat.buildFormData({
                 'client_id': config.clientId,
-                'client_secret': config.clientSecret,
+                ...(config.clientSecret ? { 'client_secret': config.clientSecret } : null),
                 'grant_type': 'refresh_token',
                 'refresh_token': refreshToken
             }),
@@ -451,9 +451,12 @@ class StorageBase {
                 if (xhr.status === 400) {
                     delete this.runtimeData[this.name + 'OAuthToken'];
                     this._oauthToken = null;
+                    this.logger.error('Error exchanging refresh token, trying to authorize again');
+                    this._oauthAuthorize(callback);
+                } else {
+                    this.logger.error('Error exchanging refresh token', err);
+                    callback?.('Error exchanging refresh token');
                 }
-                this.logger.error('Error exchanging refresh token', err);
-                callback?.('Error exchanging refresh token');
             }
         });
     }

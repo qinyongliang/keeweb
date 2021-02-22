@@ -8,7 +8,7 @@ class StorageOneDrive extends StorageBase {
     name = 'onedrive';
     enabled = true;
     uipos = 40;
-    iconSvg = 'onedrive';
+    icon = 'onedrive';
 
     _baseUrl = 'https://graph.microsoft.com/v1.0/me';
 
@@ -221,7 +221,7 @@ class StorageOneDrive extends StorageBase {
     _getOAuthConfig() {
         let clientId = this.appSettings.onedriveClientId;
         let clientSecret = this.appSettings.onedriveClientSecret;
-        if (!clientId || !clientSecret) {
+        if (!clientId) {
             if (Features.isLocal) {
                 ({ id: clientId, secret: clientSecret } = OneDriveApps.Local);
             } else {

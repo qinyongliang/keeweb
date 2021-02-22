@@ -1,4 +1,5 @@
 import { StorageBase } from 'storage/storage-base';
+import { Locale } from 'util/locale';
 
 class StorageWebDav extends StorageBase {
     name = 'webdav';
@@ -48,6 +49,12 @@ class StorageWebDav extends StorageBase {
                     type: 'select',
                     value: this.appSettings.webdavSaveMethod || 'default',
                     options: { default: 'webdavSaveMove', put: 'webdavSavePut' }
+                },
+                {
+                    id: 'webdavStatReload',
+                    title: 'webdavStatReload',
+                    type: 'checkbox',
+                    value: !!this.appSettings.webdavStatReload
                 }
             ]
         };
@@ -65,31 +72,65 @@ class StorageWebDav extends StorageBase {
                 path,
                 nostat: true,
                 user: opts ? opts.user : null,
-                password: opts ? opts.password : null
+                password: opts ? opts.password : null,
+                nostat: this.appSettings.webdavStatReload
             },
             callback
                 ? (err, xhr, stat) => {
-                      callback(err, xhr.response, stat);
+                      if (this.appSettings.webdavStatReload) {
+                          this._calcStatByContent(xhr).then((stat) =>
+                              callback(err, xhr.response, stat)
+                          );
+                      } else {
+                          callback(err, xhr.response, stat);
+                      }
                   }
                 : null
         );
     }
 
     stat(path, opts, callback) {
-        this._request(
-            {
-                op: 'Stat',
-                method: 'HEAD',
-                path,
-                user: opts ? opts.user : null,
-                password: opts ? opts.password : null
-            },
-            callback
-                ? (err, xhr, stat) => {
-                      callback(err, stat);
-                  }
-                : null
+        this._statRequest(
+            path,
+            opts,
+            'Stat',
+            callback ? (err, xhr, stat) => callback(err, stat) : null
         );
+    }
+
+    _statRequest(path, opts, op, callback) {
+        if (this.appSettings.webdavStatReload) {
+            this._request(
+                {
+                    op,
+                    method: 'GET',
+                    path,
+                    user: opts ? opts.user : null,
+                    password: opts ? opts.password : null,
+                    nostat: true
+                },
+                callback
+                    ? (err, xhr) => {
+                          this._calcStatByContent(xhr).then((stat) => callback(err, xhr, stat));
+                      }
+                    : null
+            );
+        } else {
+            this._request(
+                {
+                    op,
+                    method: 'HEAD',
+                    path,
+                    user: opts ? opts.user : null,
+                    password: opts ? opts.password : null
+                },
+                callback
+                    ? (err, xhr, stat) => {
+                          callback(err, xhr, stat);
+                      }
+                    : null
+            );
+        }
     }
 
     save(path, opts, data, callback, rev) {
@@ -119,12 +160,12 @@ class StorageWebDav extends StorageBase {
                     if (!err.notFound) {
                         return cb(err);
                     } else {
-                        that.logger.debug('Save: not found, creating');
+                        this.logger.debug('Save: not found, creating');
                         useTmpPath = false;
                     }
                 }
                 if (useTmpPath) {
-                    that._request(
+                    this._request(
                         {
                             ...saveOpts,
                             op: 'Save:put',
@@ -137,7 +178,7 @@ class StorageWebDav extends StorageBase {
                             if (err) {
                                 return cb(err);
                             }
-                            that._request(
+                            this._request(
                                 {
                                     ...saveOpts,
                                     op: 'Save:stat',
@@ -145,7 +186,7 @@ class StorageWebDav extends StorageBase {
                                 },
                                 (err, xhr, stat) => {
                                     if (err) {
-                                        that._request({
+                                        this._request({
                                             ...saveOpts,
                                             op: 'Save:delete',
                                             method: 'DELETE',
@@ -164,7 +205,7 @@ class StorageWebDav extends StorageBase {
                                                 .replace(/[^/]*$/, movePath);
                                         }
                                     }
-                                    that._request(
+                                    this._request(
                                         {
                                             ...saveOpts,
                                             op: 'Save:delete',
@@ -172,7 +213,7 @@ class StorageWebDav extends StorageBase {
                                             path: movePath
                                         },
                                         () => {
-                                            that._request(
+                                            this._request(
                                                 {
                                                     ...saveOpts,
                                                     op: 'Save:move',
@@ -188,7 +229,7 @@ class StorageWebDav extends StorageBase {
                                                     if (err) {
                                                         return cb(err);
                                                     }
-                                                    that._request(
+                                                    this._request(
                                                         {
                                                             ...saveOpts,
                                                             op: 'Save:stat',
@@ -207,7 +248,7 @@ class StorageWebDav extends StorageBase {
                         }
                     );
                 } else {
-                    that._request(
+                    this._request(
                         {
                             ...saveOpts,
                             op: 'Save:put',
@@ -219,7 +260,7 @@ class StorageWebDav extends StorageBase {
                             if (err) {
                                 return cb(err);
                             }
-                            that._request(
+                            this._request(
                                 {
                                     ...saveOpts,
                                     op: 'Save:stat',
@@ -241,12 +282,7 @@ class StorageWebDav extends StorageBase {
         if (opts.password) {
             const fileId = file.uuid;
             const password = opts.password;
-            let encpass = '';
-            for (let i = 0; i < password.length; i++) {
-                encpass += String.fromCharCode(
-                    password.charCodeAt(i) ^ fileId.charCodeAt(i % fileId.length)
-                );
-            }
+            const encpass = this._xorString(password, fileId);
             result.encpass = btoa(encpass);
         }
         return result;
@@ -257,33 +293,38 @@ class StorageWebDav extends StorageBase {
         if (opts.encpass) {
             const fileId = file.uuid;
             const encpass = atob(opts.encpass);
-            let password = '';
-            for (let i = 0; i < encpass.length; i++) {
-                password += String.fromCharCode(
-                    encpass.charCodeAt(i) ^ fileId.charCodeAt(i % fileId.length)
-                );
-            }
-            result.password = password;
+            result.password = this._xorString(encpass, fileId);
+        }
+        return result;
+    }
+
+    _xorString(str, another) {
+        let result = '';
+        for (let i = 0; i < str.length; i++) {
+            const strCharCode = str.charCodeAt(i);
+            const anotherIx = i % another.length;
+            const anotherCharCode = another.charCodeAt(anotherIx);
+            const resultCharCode = strCharCode ^ anotherCharCode;
+            result += String.fromCharCode(resultCharCode);
         }
         return result;
     }
 
     _request(config, callback) {
-        const that = this;
         if (config.rev) {
-            that.logger.debug(config.op, config.path, config.rev);
+            this.logger.debug(config.op, config.path, config.rev);
         } else {
-            that.logger.debug(config.op, config.path);
+            this.logger.debug(config.op, config.path);
         }
-        const ts = that.logger.ts();
+        const ts = this.logger.ts();
         const xhr = new XMLHttpRequest();
         xhr.addEventListener('load', () => {
             if ([200, 201, 204].indexOf(xhr.status) < 0) {
-                that.logger.debug(
+                this.logger.debug(
                     config.op + ' error',
                     config.path,
                     xhr.status,
-                    that.logger.ts(ts)
+                    this.logger.ts(ts)
                 );
                 let err;
                 switch (xhr.status) {
@@ -305,35 +346,35 @@ class StorageWebDav extends StorageBase {
             }
             const rev = xhr.getResponseHeader('Last-Modified');
             if (!rev && !config.nostat) {
-                that.logger.debug(
+                this.logger.debug(
                     config.op + ' error',
                     config.path,
                     'no headers',
-                    that.logger.ts(ts)
+                    this.logger.ts(ts)
                 );
                 if (callback) {
-                    callback('No Last-Modified header', xhr);
+                    callback(Locale.webdavNoLastModified, xhr);
                     callback = null;
                 }
                 return;
             }
             const completedOpName =
                 config.op + (config.op.charAt(config.op.length - 1) === 'e' ? 'd' : 'ed');
-            that.logger.debug(completedOpName, config.path, rev, that.logger.ts(ts));
+            this.logger.debug(completedOpName, config.path, rev, this.logger.ts(ts));
             if (callback) {
                 callback(null, xhr, rev ? { rev } : null);
                 callback = null;
             }
         });
         xhr.addEventListener('error', () => {
-            that.logger.debug(config.op + ' error', config.path, that.logger.ts(ts));
+            this.logger.debug(config.op + ' error', config.path, this.logger.ts(ts));
             if (callback) {
                 callback('network error', xhr);
                 callback = null;
             }
         });
         xhr.addEventListener('abort', () => {
-            that.logger.debug(config.op + ' error', config.path, 'aborted', that.logger.ts(ts));
+            this.logger.debug(config.op + ' error', config.path, 'aborted', this.logger.ts(ts));
             if (callback) {
                 callback('aborted', xhr);
                 callback = null;
@@ -361,6 +402,23 @@ class StorageWebDav extends StorageBase {
         } else {
             xhr.send();
         }
+    }
+
+    _calcStatByContent(xhr) {
+        if (
+            xhr.status !== 200 ||
+            xhr.responseType !== 'arraybuffer' ||
+            !xhr.response ||
+            !xhr.response.byteLength
+        ) {
+            this.logger.debug('Cannot calculate rev by content');
+            return null;
+        }
+        return kdbxweb.CryptoEngine.sha256(xhr.response).then((hash) => {
+            const rev = kdbxweb.ByteUtils.bytesToHex(hash).substr(0, 10);
+            this.logger.debug('Calculated rev by content', `${xhr.response.byteLength} bytes`, rev);
+            return { rev };
+        });
     }
 }
 

@@ -2,6 +2,7 @@
 
 const fs = require('fs-extra');
 const path = require('path');
+const { execSync } = require('child_process');
 const debug = require('debug');
 
 const webpackConfig = require('./build/webpack.config');
@@ -24,7 +25,7 @@ module.exports = function (grunt) {
 
     const dt = date.toISOString().replace(/T.*/, '');
     const year = date.getFullYear();
-    const minElectronVersionForUpdate = '9.0.1';
+    const minElectronVersionForUpdate = '11.0.3';
     const zipCommentPlaceholderPart = 'zip_comment_placeholder_that_will_be_replaced_with_hash';
     const zipCommentPlaceholder =
         zipCommentPlaceholderPart + '.'.repeat(512 - zipCommentPlaceholderPart.length);
@@ -33,12 +34,12 @@ module.exports = function (grunt) {
     const getCodeSignConfig = () =>
         skipSign ? { identities: {} } : require('./keys/codesign.json');
 
+    const sha = execSync('git rev-parse --short HEAD').toString('utf8').trim();
+
     const webpackOptions = {
         date,
         beta: !!grunt.option('beta'),
-        get sha() {
-            return grunt.config.get('gitinfo.local.branch.current.shortSHA');
-        }
+        sha
     };
 
     const windowsAppVersionString = {
@@ -49,18 +50,26 @@ module.exports = function (grunt) {
         InternalName: 'KeeWeb'
     };
 
+    const appdmgOptions = (arch) => ({
+        title: 'KeeWeb',
+        icon: 'graphics/icon.icns',
+        background: 'graphics/dmg-background.png',
+        'background-color': '#E0E6F9',
+        'icon-size': 80,
+        window: { size: { width: 658, height: 498 } },
+        contents: [
+            { x: 438, y: 344, type: 'link', path: '/Applications' },
+            {
+                x: 192,
+                y: 344,
+                type: 'file',
+                path: `tmp/desktop/KeeWeb-darwin-${arch}/KeeWeb.app`
+            }
+        ]
+    });
+
     grunt.initConfig({
         noop: { noop: {} },
-        gitinfo: {
-            branch: {
-                current: {
-                    SHA: 'Current HEAD SHA',
-                    shortSHA: 'Current HEAD short SHA',
-                    name: 'Current branch name',
-                    lastCommitTime: 'Last commit time'
-                }
-            }
-        },
         clean: {
             dist: ['dist', 'tmp'],
             desktop: ['tmp/desktop', 'dist/desktop']
@@ -76,11 +85,6 @@ module.exports = function (grunt) {
                 src: '**',
                 dest: 'dist/',
                 expand: true,
-                nonull: true
-            },
-            favicon: {
-                src: 'app/favicon.png',
-                dest: 'tmp/favicon.png',
                 nonull: true
             },
             icons: {
@@ -111,13 +115,6 @@ module.exports = function (grunt) {
                 expand: true,
                 nonull: true
             },
-            fonts: {
-                src: 'node_modules/font-awesome/fonts/fontawesome-webfont.*',
-                dest: 'tmp/fonts/',
-                nonull: true,
-                expand: true,
-                flatten: true
-            },
             'desktop-html': {
                 src: 'dist/index.html',
                 dest: 'tmp/desktop/app/index.html',
@@ -142,17 +139,32 @@ module.exports = function (grunt) {
                 dest: 'tmp/desktop/update/',
                 nonull: true
             },
-            'desktop-darwin-helper': {
+            'desktop-darwin-helper-x64': {
                 src: 'helper/darwin/KeeWebHelper',
                 dest: 'tmp/desktop/KeeWeb-darwin-x64/KeeWeb.app/Contents/Resources/',
                 nonull: true,
                 options: { mode: '0755' }
             },
-            'desktop-darwin-installer-helper': {
+            'desktop-darwin-helper-arm64': {
+                src: 'helper/darwin/KeeWebHelper',
+                dest: 'tmp/desktop/KeeWeb-darwin-arm64/KeeWeb.app/Contents/Resources/',
+                nonull: true,
+                options: { mode: '0755' }
+            },
+            'desktop-darwin-installer-helper-x64': {
                 cwd: 'package/osx/KeeWeb Installer.app',
                 src: '**',
                 dest:
                     'tmp/desktop/KeeWeb-darwin-x64/KeeWeb.app/Contents/Installer/KeeWeb Installer.app',
+                expand: true,
+                nonull: true,
+                options: { mode: true }
+            },
+            'desktop-darwin-installer-helper-arm64': {
+                cwd: 'package/osx/KeeWeb Installer.app',
+                src: '**',
+                dest:
+                    'tmp/desktop/KeeWeb-darwin-arm64/KeeWeb.app/Contents/Installer/KeeWeb Installer.app',
                 expand: true,
                 nonull: true,
                 options: { mode: true }
@@ -187,9 +199,14 @@ module.exports = function (grunt) {
                 dest: `dist/desktop/KeeWeb-${pkg.version}.win.arm64.exe`,
                 nonull: true
             },
-            'native-modules-darwin': {
+            'native-modules-darwin-x64': {
                 src: 'node_modules/@keeweb/keeweb-native-modules/*-darwin-x64.node',
                 dest: 'tmp/desktop/KeeWeb-darwin-x64/KeeWeb.app/Contents/Resources/',
+                nonull: true
+            },
+            'native-modules-darwin-arm64': {
+                src: 'node_modules/@keeweb/keeweb-native-modules/*-darwin-arm64.node',
+                dest: 'tmp/desktop/KeeWeb-darwin-arm64/KeeWeb.app/Contents/Resources/',
                 nonull: true
             },
             'native-modules-win32-x64': {
@@ -246,7 +263,7 @@ module.exports = function (grunt) {
                 algo: 'sha512',
                 expected: {
                     style: 1,
-                    script: 3
+                    script: 2
                 }
             },
             app: {
@@ -337,20 +354,30 @@ module.exports = function (grunt) {
                 asar: true,
                 appCopyright: `Copyright © ${year} Antelle`,
                 appVersion: pkg.version,
-                buildVersion: '<%= gitinfo.local.branch.current.shortSHA %>'
+                buildVersion: sha
             },
             linux: {
                 options: {
                     name: 'keeweb',
                     platform: 'linux',
-                    arch: ['x64'],
+                    arch: 'x64',
                     icon: 'graphics/icon.ico'
                 }
             },
-            darwin: {
+            'darwin-x64': {
                 options: {
                     platform: 'darwin',
-                    arch: ['x64'],
+                    arch: 'x64',
+                    icon: 'graphics/icon.icns',
+                    appBundleId: 'net.antelle.keeweb',
+                    appCategoryType: 'public.app-category.productivity',
+                    extendInfo: 'package/osx/extend.plist'
+                }
+            },
+            'darwin-arm64': {
+                options: {
+                    platform: 'darwin',
+                    arch: 'arm64',
                     icon: 'graphics/icon.icns',
                     appBundleId: 'net.antelle.keeweb',
                     appCategoryType: 'public.app-category.productivity',
@@ -451,34 +478,20 @@ module.exports = function (grunt) {
             }
         },
         appdmg: {
-            options: {
-                title: 'KeeWeb',
-                icon: 'graphics/icon.icns',
-                background: 'graphics/background.png',
-                'background-color': '#E0E6F9',
-                'icon-size': 80,
-                window: { size: { width: 658, height: 498 } },
-                contents: [
-                    { x: 438, y: 344, type: 'link', path: '/Applications' },
-                    {
-                        x: 192,
-                        y: 344,
-                        type: 'file',
-                        path: 'tmp/desktop/KeeWeb-darwin-x64/KeeWeb.app'
-                    }
-                ]
+            x64: {
+                options: appdmgOptions('x64'),
+                dest: `dist/desktop/KeeWeb-${pkg.version}.mac.x64.dmg`
             },
-            app: {
-                dest: `dist/desktop/KeeWeb-${pkg.version}.mac.dmg`
+            arm64: {
+                options: appdmgOptions('arm64'),
+                dest: `dist/desktop/KeeWeb-${pkg.version}.mac.arm64.dmg`
             }
         },
         nsis: {
             options: {
                 vars: {
                     version: pkg.version,
-                    rev() {
-                        return grunt.config.get('gitinfo.local.branch.current.shortSHA');
-                    },
+                    rev: sha,
                     homepage: pkg.homepage
                 }
             },
@@ -542,9 +555,7 @@ module.exports = function (grunt) {
                     description: pkg.description,
                     author: pkg.author,
                     homepage: pkg.homepage,
-                    rev() {
-                        return grunt.config.get('gitinfo.local.branch.current.shortSHA');
-                    }
+                    rev: sha
                 }
             },
             'linux-x64': {
@@ -616,8 +627,11 @@ module.exports = function (grunt) {
                 'entitlements-inherit': 'package/osx/entitlements.mac.plist',
                 'gatekeeper-assess': false
             },
-            desktop: {
+            'desktop-x64': {
                 src: 'tmp/desktop/KeeWeb-darwin-x64/KeeWeb.app'
+            },
+            'desktop-arm64': {
+                src: 'tmp/desktop/KeeWeb-darwin-arm64/KeeWeb.app'
             }
         },
         notarize: {
@@ -631,8 +645,11 @@ module.exports = function (grunt) {
                     return getCodeSignConfig().teamId;
                 }
             },
-            desktop: {
+            'desktop-x64': {
                 src: 'tmp/desktop/KeeWeb-darwin-x64/KeeWeb.app'
+            },
+            'desktop-arm64': {
+                src: 'tmp/desktop/KeeWeb-darwin-arm64/KeeWeb.app'
             }
         },
         'sign-exe': {
@@ -742,6 +759,16 @@ module.exports = function (grunt) {
                 headless: true
             },
             default: 'test/runner.html'
+        },
+        virustotal: {
+            options: {
+                prefix: `keeweb.v${pkg.version}-${sha}.`,
+                timeout: 10 * 60 * 1000,
+                get apiKey() {
+                    return require('./keys/virus-total.json').apiKey;
+                }
+            },
+            html: 'dist/index.html'
         }
     });
 };
