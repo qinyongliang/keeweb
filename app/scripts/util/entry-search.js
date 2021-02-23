@@ -1,4 +1,5 @@
 import { BuiltInFields } from 'const/entry-fields';
+import PinyinMatch from 'pinyin-match';
 
 class EntrySearch {
     constructor(model) {
@@ -10,11 +11,20 @@ class EntrySearch {
             return true;
         }
         if (filter.tagLower) {
+            if (
+                this.model.searchTags &&
+                PinyinMatch.match(this.model.searchTags, filter.tagLower) !== false
+            ) {
+                return true;
+            }
             if (this.model.searchTags && this.model.searchTags.indexOf(filter.tagLower) < 0) {
                 return false;
             }
         }
         if (filter.textLower) {
+            if (PinyinMatch.match(this.model.searchText, filter.textLower) !== false) {
+                return true;
+            }
             if (filter.advanced) {
                 if (!this.matchesAdv(filter)) {
                     return false;

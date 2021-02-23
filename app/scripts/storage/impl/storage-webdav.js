@@ -1,3 +1,4 @@
+import kdbxweb from 'kdbxweb';
 import { StorageBase } from 'storage/storage-base';
 import { Locale } from 'util/locale';
 
@@ -49,12 +50,6 @@ class StorageWebDav extends StorageBase {
                     type: 'select',
                     value: this.appSettings.webdavSaveMethod || 'default',
                     options: { default: 'webdavSaveMove', put: 'webdavSavePut' }
-                },
-                {
-                    id: 'webdavStatReload',
-                    title: 'webdavStatReload',
-                    type: 'checkbox',
-                    value: !!this.appSettings.webdavStatReload
                 }
             ]
         };
@@ -72,20 +67,9 @@ class StorageWebDav extends StorageBase {
                 path,
                 nostat: true,
                 user: opts ? opts.user : null,
-                password: opts ? opts.password : null,
-                nostat: this.appSettings.webdavStatReload
+                password: opts ? opts.password : null
             },
-            callback
-                ? (err, xhr, stat) => {
-                      if (this.appSettings.webdavStatReload) {
-                          this._calcStatByContent(xhr).then((stat) =>
-                              callback(err, xhr.response, stat)
-                          );
-                      } else {
-                          callback(err, xhr.response, stat);
-                      }
-                  }
-                : null
+            callback ? (err, xhr, stat) => callback(err, xhr.response, stat) : null
         );
     }
 
@@ -99,38 +83,21 @@ class StorageWebDav extends StorageBase {
     }
 
     _statRequest(path, opts, op, callback) {
-        if (this.appSettings.webdavStatReload) {
-            this._request(
-                {
-                    op,
-                    method: 'GET',
-                    path,
-                    user: opts ? opts.user : null,
-                    password: opts ? opts.password : null,
-                    nostat: true
-                },
-                callback
-                    ? (err, xhr) => {
-                          this._calcStatByContent(xhr).then((stat) => callback(err, xhr, stat));
-                      }
-                    : null
-            );
-        } else {
-            this._request(
-                {
-                    op,
-                    method: 'HEAD',
-                    path,
-                    user: opts ? opts.user : null,
-                    password: opts ? opts.password : null
-                },
-                callback
-                    ? (err, xhr, stat) => {
-                          callback(err, xhr, stat);
-                      }
-                    : null
-            );
-        }
+        this._request(
+            {
+                op,
+                method: 'GET',
+                path,
+                user: opts ? opts.user : null,
+                password: opts ? opts.password : null,
+                nostat: true
+            },
+            callback
+                ? (err, xhr) => {
+                      this._calcStatByContent(xhr).then((stat) => callback(err, xhr, stat));
+                  }
+                : null
+        );
     }
 
     save(path, opts, data, callback, rev) {
@@ -147,7 +114,6 @@ class StorageWebDav extends StorageBase {
             password: opts ? opts.password : null,
             nostat: true
         };
-        const that = this;
         this._request(
             {
                 ...saveOpts,

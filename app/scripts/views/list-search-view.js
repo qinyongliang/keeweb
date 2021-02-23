@@ -186,7 +186,7 @@ class ListSearchView extends View {
 
     viewHidden() {
         this.removeKeypressHandler();
-        window.utools.removeSubInput();
+        window.utools?.removeSubInput();
     }
 
     render() {

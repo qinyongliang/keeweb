@@ -1,6 +1,7 @@
 import kdbxweb from 'kdbxweb';
 import { Logger } from 'util/logger';
 import { Features } from 'util/features';
+import { AppSettingsModel } from 'models/app-settings-model';
 import { NativeModules } from 'comp/launcher/native-modules';
 
 const logger = new Logger('argon2');
@@ -28,7 +29,7 @@ const KdbxwebInit = {
         if (!global.WebAssembly) {
             return Promise.reject('WebAssembly is not supported');
         }
-        if (Features.isDesktop && AppSettingsModel.nativeArgon2) {
+        if (Features.isDesktop && !window.utools && AppSettingsModel.nativeArgon2) {
             logger.debug('Using native argon2');
             this.runtimeModule = {
                 hash(args) {

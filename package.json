@@ -80,6 +80,7 @@
         "normalize.css": "8.0.1",
         "optimize-css-assets-webpack-plugin": "^5.0.4",
         "pikaday": "1.8.2",
+        "pinyin-match": "^1.2.0",
         "pkcs11-smartcard-sign": "^1.0.1",
         "postcss": "^8.1.10",
         "postcss-loader": "^4.1.0",

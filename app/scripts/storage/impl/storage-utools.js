@@ -9,15 +9,13 @@ class StorageUtools extends StorageBase {
     save(id, opts, data, callback) {
         const file = window.bufferFrom(data);
         const record = window.utools.db.get(this.cacheName + id);
-        const res = record
-            ? window.utools.db.putAttachment(
-                  this.cacheName + id,
-                  'file',
-                  record._rev,
-                  file,
-                  'text/plain'
-              )
-            : window.utools.db.putAttachment(this.cacheName + id, 'file', file, 'text/plain');
+        const res = window.utools.db.putAttachment(
+            this.cacheName + id,
+            'file',
+            record?._rev,
+            file,
+            'text/plain'
+        );
         this.logger.debug('cache saved', id, res);
         return callback && callback();
     }
