@@ -4,6 +4,7 @@ if (window.process && window.process.versions && window.process.versions.electro
     Launcher = require('./launcher-electron').Launcher;
 }
 if (window.utools) {
+    globalThis.Buffer = window.BufferProxy;
     Launcher = require('./launcher-utools').Launcher;
 }
 

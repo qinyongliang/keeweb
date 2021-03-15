@@ -18,9 +18,17 @@ KeePass是一款开源的密码管理工具。而这是一款基于keeweb的utoo
 ![](https://i.loli.net/2020/10/20/dYH2nIgryopvkcS.png)
 
 自动输入
+
 ![屏幕录制.gif](https://i.loli.net/2020/10/20/DZM3mRKF6g57pnE.gif)
 
+> 选中某条记录后，按`CTRL+T`实现自动输入
+
 ## 更新日志
+
+### 0.4.0
+
+1. 实现第三方插件：ChromeKeePass
+2. 升级数据结构
 
 ### 0.3.0
 

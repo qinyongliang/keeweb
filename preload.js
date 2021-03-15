@@ -1,8 +1,21 @@
-window.require = {
-    'clipboard': require('electron').clipboard,
-    'path': require('path'),
-    'fs': require('fs'),
-    'http': require('http')
-};
-window.bufferFrom = Buffer.from;
+window.require = (req) => {
+    if(req == "electron"){
+        return {
+            ...require(req),
+            remote:{
+                app:{
+                    getMainWindow:()=>{
+                        return {
+                            focus: ()=>{
+                                window.utools.showMainWindow();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return require(req)
+}
+window.BufferProxy = Buffer
 window.runtime = () => process;

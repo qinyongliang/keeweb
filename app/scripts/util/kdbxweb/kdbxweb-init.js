@@ -64,8 +64,8 @@ const KdbxwebInit = {
                         });
 
                     function makeXoredValue(val) {
-                        const data = window.bufferFrom(val);
-                        const random = window.bufferFrom(kdbxweb.Random.getBytes(data.length));
+                        const data = Buffer.from(val);
+                        const random = Buffer.from(kdbxweb.Random.getBytes(data.length));
 
                         for (let i = 0; i < data.length; i++) {
                             data[i] ^= random[i];
@@ -80,8 +80,8 @@ const KdbxwebInit = {
                     }
 
                     function readXoredValue(val) {
-                        const data = window.bufferFrom(val.data);
-                        const random = window.bufferFrom(val.random);
+                        const data = Buffer.from(val.data);
+                        const random = Buffer.from(val.random);
 
                         for (let i = 0; i < data.length; i++) {
                             data[i] ^= random[i];

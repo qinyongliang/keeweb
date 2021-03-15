@@ -173,7 +173,7 @@ class ListSearchView extends View {
                     }, 'search');
                     const url = window.utools.getCurrentBrowserUrl();
                     if (url) {
-                        const host = new URL(url).hostname;
+                        const host = new URL(url)?.hostname?.split('.').slice(-2).join('.');
                         if (host) {
                             window.utools.setSubInputValue(host);
                             window.utools.subInputSelect();

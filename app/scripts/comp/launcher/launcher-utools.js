@@ -13,7 +13,7 @@ const Launcher = {
     thirdPartyStoragesSupported: true,
     clipboardSupported: true,
     req(req) {
-        return window.require[req];
+        return window.require(req);
     },
     platform() {
         return 'utools';
@@ -51,23 +51,20 @@ const Launcher = {
         return this.joinPath(window.utools.getPath('documents'), fileName || '');
     },
     getAppPath(fileName) {
-        const dirname = window.require.path.dirname;
-        const appPath = __dirname.endsWith('app.asar')
-            ? __dirname
-            : window.utools.getPath('userData');
-        return this.joinPath(dirname(appPath), fileName || '');
+        const dirname = window.require('path').dirname;
+        return this.joinPath(dirname(window.utools.getPath('userData')), fileName || '');
     },
     getWorkDirPath(fileName) {
         return this.joinPath(window.runtime().cwd(), fileName || '');
     },
     joinPath(...parts) {
-        return window.require.path.join(...parts);
+        return window.require('path').join(...parts);
     },
     writeFile(path, data, callback) {
-        window.require.fs.writeFile(path, window.bufferFrom(data), callback);
+        window.require('fs').writeFile(path, Buffer.from(data), callback);
     },
     readFile(path, encoding, callback) {
-        window.require.fs.readFile(path, encoding, (err, contents) => {
+        window.require('fs').readFile(path, encoding, (err, contents) => {
             const data = typeof contents === 'string' ? contents : new Uint8Array(contents);
             callback(data, err);
         });
@@ -81,14 +78,14 @@ const Launcher = {
         return !fs.accessSync(path, fs.constants.F_OK);
     },
     deleteFile(path, callback) {
-        window.require.fs.unlink(path, callback || noop);
+        window.require('fs').unlink(path, callback || noop);
     },
     statFile(path, callback) {
-        window.require.fs.stat(path, (err, stats) => callback(stats, err));
+        window.require('fs').stat(path, (err, stats) => callback(stats, err));
     },
     mkdir(dir, callback) {
         const fs = window.require.fs;
-        const path = window.require.path;
+        const path = window.require('path');
         const stack = [];
 
         const collect = function (dir, stack, callback) {
@@ -118,7 +115,7 @@ const Launcher = {
         collect(dir, stack, () => create(stack, callback));
     },
     parsePath(fileName) {
-        const path = window.require.path;
+        const path = window.require('path');
         return {
             path: fileName,
             dir: path.dirname(fileName),
@@ -126,7 +123,7 @@ const Launcher = {
         };
     },
     createFsWatcher(path) {
-        return window.require.fs.watch(path, { persistent: false });
+        return window.require('fs').watch(path, { persistent: false });
     },
     loadConfig(name) {
         return new Promise((resolve, reject) => {
@@ -167,12 +164,12 @@ const Launcher = {
         return window.utools.copyText(text);
     },
     getClipboardText() {
-        return window.require.clipboard.readText();
+        return window.require('electron').clipboard.readText();
     },
     clearClipboardText() {
-        window.require.clipboard.clear();
+        window.require('electron').clipboard.clear();
         if (window.runtime().platform === 'linux') {
-            window.require.clipboard.clear('selection');
+            window.require('electron').clipboard.clear('selection');
         }
     },
     quitOnRealQuitEventIfMinimizeOnQuitIsEnabled() {

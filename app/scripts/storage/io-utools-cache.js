@@ -1,16 +1,16 @@
 const IoUtoolsCache = function (config) {
     this.basePath = null;
-    this.cacheName = 'file-' + config.cacheName + '-';
+    this.cacheName = 'file-' + config.cacheName;
     this.logger = config.logger;
 };
 
 Object.assign(IoUtoolsCache.prototype, {
     save(id, data, callback) {
-        const file = window.bufferFrom(data);
-        const record = window.utools.db.get(this.cacheName + id);
+        const file = Buffer.from(data);
+        const record = window.utools.db.get(this.cacheName);
         const res = window.utools.db.putAttachment(
-            this.cacheName + id,
-            'file',
+            this.cacheName,
+            id,
             record?._rev,
             file,
             'text/plain'
@@ -20,7 +20,7 @@ Object.assign(IoUtoolsCache.prototype, {
     },
 
     load(id, callback) {
-        const data = window.utools.db.getAttachment(this.cacheName + id, 'file');
+        const data = window.utools.db.getAttachment(this.cacheName, id);
         if (data) {
             return callback && callback(null, data.buffer);
         }
@@ -28,7 +28,8 @@ Object.assign(IoUtoolsCache.prototype, {
     },
 
     remove(id, callback) {
-        window.utools.db.remove(this.cacheName + id);
+        const record = window.utools.db.get(this.cacheName);
+        window.utools.db.removeAttachment(this.cacheName, id, record?._rev);
         return callback && callback();
     }
 });
