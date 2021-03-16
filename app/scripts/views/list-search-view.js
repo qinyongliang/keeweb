@@ -164,29 +164,10 @@ class ListSearchView extends View {
         const keypressHandler = (e) => this.documentKeyPress(e);
         Events.on('keypress', keypressHandler);
         this.removeKeypressHandler = () => Events.off('keypress', keypressHandler);
-        if (window.utools) {
-            window.utools.onPluginEnter(({ code, type, payload, optional }) => {
-                if (type === 'text') {
-                    window.utools.setSubInput((val) => {
-                        this.inputEl.val(val.text);
-                        Events.emit('add-filter', { text: val.text });
-                    }, 'search');
-                    const url = window.utools.getCurrentBrowserUrl();
-                    if (url) {
-                        const host = new URL(url)?.hostname?.split('.').slice(-2).join('.');
-                        if (host) {
-                            window.utools.setSubInputValue(host);
-                            window.utools.subInputSelect();
-                        }
-                    }
-                }
-            });
-        }
     }
 
     viewHidden() {
         this.removeKeypressHandler();
-        window.utools?.removeSubInput();
     }
 
     render() {
