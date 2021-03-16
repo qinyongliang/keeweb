@@ -234,6 +234,28 @@ if (window.launcherOpenedFile) {
 window.utools.onPluginReady(() => {
     Events.emit('app-ready');
 });
+window.utools.onPluginEnter(({ code, type, payload, optional }) => {
+    if (type === 'text') {
+        window.utools.setSubInput((val) => {
+            if (val) {
+                document.querySelector('.list__search-field').value = val.text;
+                Events.emit('add-filter', { text: val.text });
+            }
+        }, 'search');
+        let url = window.utools.getCurrentBrowserUrl();
+        // 处理windows获取BrowserUrl没有http前缀
+        if (url && !/^http/.test(url)) {
+            url = `http://${url}`;
+        }
+        if (url) {
+            const host = new URL(url)?.hostname?.split('.').slice(-2).join('.');
+            if (host) {
+                window.utools.setSubInputValue(host);
+                window.utools.subInputSelect();
+            }
+        }
+    }
+});
 Events.on('app-ready', () =>
     setTimeout(() => {
         Launcher.checkOpenFiles();
