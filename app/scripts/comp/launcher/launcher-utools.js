@@ -248,8 +248,11 @@ window.utools.onPluginEnter(({ code, type, payload, optional }) => {
             url = `http://${url}`;
         }
         if (url) {
-            const host = new URL(url)?.hostname?.split('.').slice(-2).join('.');
+            let host = new URL(url)?.hostname;
             if (host) {
+                if (/[a-zA-Z]/.test(host)) {
+                    host = host?.split('.').slice(-2).join('.');
+                }
                 window.utools.setSubInputValue(host);
                 window.utools.subInputSelect();
             }

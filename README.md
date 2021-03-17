@@ -25,6 +25,14 @@ KeePass是一款开源的密码管理工具。而这是一款基于keeweb的utoo
 
 ## 更新日志
 
+
+### 0.4.1
+
+1. 修复windows下没有自动获取并检索当前网址
+ 
+> 感谢 [anrgct](https://github.com/anrgct)
+
+
 ### 0.4.0
 
 1. 实现第三方插件：ChromeKeePass
