@@ -17,13 +17,29 @@ KeePass是一款开源的密码管理工具。而这是一款基于keeweb的utoo
 ![](https://i.loli.net/2020/10/20/8rt27ETqRfGi4we.png)
 ![](https://i.loli.net/2020/10/20/dYH2nIgryopvkcS.png)
 
-自动输入
+## 自动输入
 
 ![屏幕录制.gif](https://i.loli.net/2020/10/20/DZM3mRKF6g57pnE.gif)
 
 > 选中某条记录后，按`CTRL+T`实现自动输入
 
+## 超级面板自动输入
+
+![autoType.gif](https://i.loli.net/2021/03/22/XNf2uaWGl1D4gRB.gif)
+
+## 全局快捷键自动输入
+
+需要在 `设置` --> `全局快捷键` 中添加快捷键，功能关键字为： `自动填充`
+
 ## 更新日志
+
+### 0.5.0
+
+1. 实现唤起超级面板 自动填充 用户密码
+
+> 支持网址匹配和应用匹配，建议将应用名填入 `备注` 字段
+
+> 应用名称可在填充时的界面中找到。
 
 
 ### 0.4.1

@@ -151,12 +151,8 @@ const AutoType = {
 
     hideWindow(callback) {
         logger.debug('Hide window');
-        if (Launcher.isAppFocused()) {
-            Launcher.hideApp();
-            setTimeout(callback, Timeouts.AutoTypeAfterHide);
-        } else {
-            callback();
-        }
+        Launcher.hideApp();
+        setTimeout(callback, Timeouts.AutoTypeAfterHide);
     },
 
     getActiveWindowInfo(callback) {

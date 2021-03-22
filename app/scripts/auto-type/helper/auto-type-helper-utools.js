@@ -1,11 +1,11 @@
 const AutoTypeHelper = function () {};
 
 AutoTypeHelper.prototype.getActiveWindowInfo = function (callback) {
-    const url = window.utools.getCurrentBrowserUrl();
-    return callback({
+    const host = window.getHost();
+    return callback(null, {
         id: '',
-        url,
-        title: ''
+        url: host ?? '',
+        title: host ? '' : Window.prototype.activeApp
     });
 };
 

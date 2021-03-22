@@ -5,7 +5,7 @@ const urlPartsRegex = /^(\w+:\/\/)?(?:(?:www|wwws|secure)\.)?([^\/]+)\/?(.*)/;
 
 const AutoTypeFilter = function (windowInfo, appModel) {
     this.title = windowInfo.title;
-    this.url = windowInfo.url;
+    this.url = windowInfo.url ?? windowInfo.title;
     this.text = '';
     this.ignoreWindowInfo = false;
     this.appModel = appModel;

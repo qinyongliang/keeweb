@@ -190,7 +190,7 @@ const Launcher = {
         window.utools.hideMainWindow();
     },
     isAppFocused() {
-        return true;
+        return false;
     },
     showMainWindow() {
         window.utools.showMainWindow();
@@ -234,29 +234,42 @@ if (window.launcherOpenedFile) {
 window.utools.onPluginReady(() => {
     Events.emit('app-ready');
 });
+
+Window.prototype.getHost = () => {
+    let host;
+    let url = window.utools.getCurrentBrowserUrl();
+    if (url) {
+        // 处理windows获取BrowserUrl没有http前缀
+        if (!/^http/.test(url)) {
+            url = `http://${url}`;
+        }
+        host = new URL(url)?.hostname;
+        if (host && /[a-zA-Z]/.test(host)) {
+            host = host?.split('.').slice(-2).join('.');
+        }
+    }
+    return host;
+};
+
 window.utools.onPluginEnter(({ code, type, payload, optional }) => {
-    if (type === 'text') {
+    if (code === 'keepass') {
         window.utools.setSubInput((val) => {
             if (val) {
                 document.querySelector('.list__search-field').value = val.text;
                 Events.emit('add-filter', { text: val.text });
             }
         }, 'search');
-        let url = window.utools.getCurrentBrowserUrl();
-        // 处理windows获取BrowserUrl没有http前缀
-        if (url && !/^http/.test(url)) {
-            url = `http://${url}`;
+        const host = window.getHost();
+        if (host) {
+            window.utools.setSubInputValue(host);
+            window.utools.subInputSelect();
         }
-        if (url) {
-            let host = new URL(url)?.hostname;
-            if (host) {
-                if (/[a-zA-Z]/.test(host)) {
-                    host = host?.split('.').slice(-2).join('.');
-                }
-                window.utools.setSubInputValue(host);
-                window.utools.subInputSelect();
-            }
+    } else if (code === 'fill') {
+        Window.prototype.activeApp = '';
+        if (type === 'window') {
+            Window.prototype.activeApp = payload?.app.split('.')[0];
         }
+        Events.emit('auto-type');
     }
 });
 Events.on('app-ready', () =>
