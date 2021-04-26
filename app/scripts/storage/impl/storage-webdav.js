@@ -94,7 +94,11 @@ class StorageWebDav extends StorageBase {
             },
             callback
                 ? (err, xhr) => {
-                      this._calcStatByContent(xhr).then((stat) => callback(err, xhr, stat));
+                      if (!err) {
+                          this._calcStatByContent(xhr)?.then((stat) => callback(err, xhr, stat));
+                      } else {
+                          callback(err, xhr);
+                      }
                   }
                 : null
         );
@@ -244,7 +248,7 @@ class StorageWebDav extends StorageBase {
     }
 
     fileOptsToStoreOpts(opts, file) {
-        const result = { user: opts.user, encpass: opts.encpass };
+        const result = { user: opts.user, encpass: opts.encpass, password: opts.password };
         if (opts.password) {
             const fileId = file.uuid;
             const password = opts.password;
