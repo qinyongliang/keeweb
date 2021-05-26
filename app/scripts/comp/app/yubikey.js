@@ -203,7 +203,7 @@ const YubiKey = {
 
         this.process = Launcher.spawn({
             cmd: this.cmd(),
-            args: ['-d', serial, 'oath', 'code'],
+            args: ['-d', serial, 'oath', 'accounts', 'code'],
             noStdOutLogging: true,
             throwOnStdErr: true,
             complete: (err, stdout) => {
@@ -241,7 +241,7 @@ const YubiKey = {
     getOtp(serial, entry, callback) {
         return Launcher.spawn({
             cmd: this.cmd(),
-            args: ['-d', serial, 'oath', 'code', '--single', entry],
+            args: ['-d', serial, 'oath', 'accounts', 'code', '--single', entry],
             noStdOutLogging: true,
             complete: (err, stdout) => {
                 if (err) {

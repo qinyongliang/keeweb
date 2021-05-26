@@ -1,5 +1,55 @@
 Release notes
 -------------
+##### v1.17.5 (2021-03-27)
+`+` ykman v4 support  
+`+` fix #1725: setting expiry date in the past  
+`-` fix #1762: line breaks in Markdown notes  
+`-` fix #1734: overlapping generator icon on password inputs  
+`-` fix #1758: export format HTML issues  
+`-` fix #1755: calendar tooltips in different time zones  
+`-` restored the missing local file icon on the open screen  
+`*` new Windows code signing certificate  
+
+##### v1.17.4 (2021-03-18)
+`-` fix #1740: Windows updater issues  
+`-` fix #1749: auto-type freezes on macOS    
+
+##### v1.17.3 (2021-03-14)
+`-` fix #1747: white screen in old Safari  
+
+##### v1.17.2 (2021-03-13)
+`-` fixed crashes in the USB module on Windows  
+`-` fix #1745: deleting selected text in auto-type selector  
+`-` fix #1738: fixed auto-type on Linux with NumLock pressed  
+
+##### v1.17.1 (2021-03-10)
+`-` fix #1735: issue with auto-typing some characters on Windows  
+
+##### v1.17.0 (2021-03-07)
+`+` opening files with Touch ID on macOS (opt-in)  
+`+` password quality warnings  
+`+` "Have I Been Pwned" service integration (opt-in)  
+`+` automatically switching between dark and light theme  
+`+` custom title bar on Windows  
+`*` new updater capable to upgrade major versions  
+`*` new auto-type rewritten from scratch  
+`+` possibility to detect browser URL on Linux  
+`*` external modification protection in desktop versions  
+`+` clear searchbox button  
+`+` more options for auto-lock timeout  
+`+` favicon download improvements  
+`+` auto-type field selection dropdown improvements  
+`+` new completion page after storage provider authentication  
+`+` option to disable caching files in offline storage  
+`+` option to minimize on field copy  
+`-` fixed creating files with Argon2id KDF  
+
+##### v1.16.8 (2021-03-02)
+`-` fix #1726: search in protected fields  
+`-` fix #1713: OneDrive authentication on web  
+`-` fix #1715: storage authentication in Epiphany browser  
+`-` fix #1711: storage authentication in iOS  
+
 ##### v1.16.7 (2020-12-31)
 `-` fix #1671: new lines removal issue in notes  
 
@@ -609,7 +659,8 @@ Performance, stability and quality improvements
 `+` track changes in local files  
 `+` mobile layout made more convenient  
 `+` command-line option to disable updater  
-`+` using system proxy settings for updater  
+`+` using system proxy se
+ttings for updater  
 `+` webapp icon for touch devices  
 `-` #80: prevent data loss on group move  
 `-` issues with clipboard clear fixed  

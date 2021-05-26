@@ -24,7 +24,6 @@ class FieldViewDate extends FieldViewText {
             onSelect: this.pickerSelect.bind(this),
             onClose: this.pickerClose.bind(this),
             defaultDate: this.value,
-            minDate: new Date(),
             firstDay: 1,
             i18n: {
                 previousMonth: '',
@@ -64,7 +63,7 @@ class FieldViewDate extends FieldViewText {
             this.picker = null;
         }
         newVal = new Date(newVal);
-        if (!newVal || isNaN(newVal.getTime())) {
+        if (isNaN(newVal.getTime())) {
             newVal = null;
         }
         super.endEdit(newVal, extra);

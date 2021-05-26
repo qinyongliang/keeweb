@@ -276,6 +276,9 @@
                 .details__field--protected & {
                     font-family: $monospace-font-family;
                 }
+                .details__field--can-gen & {
+                    padding-right: 2.4em;
+                }
                 transition: background-color $slow-transition-out, border-color $slow-transition-out;
                 .details__field--edit[active-mobile-action] & {
                     transition: background-color $slow-transition-in,
@@ -571,6 +574,50 @@
             }
             .details__attachment-preview-data {
                 padding-top: $large-padding;
+            }
+        }
+    }
+
+    &__issues {
+        margin-top: $base-padding-v;
+        color: var(--text-contrast-error-color);
+        background-color: var(--error-color);
+        border-radius: var(--block-border-radius);
+        display: flex;
+        align-items: stretch;
+        flex-direction: row;
+        justify-content: flex-start;
+
+        &-body {
+            padding: $medium-padding-v 0;
+            flex-grow: 1;
+            > a {
+                color: var(--text-contrast-error-color);
+            }
+        }
+        &-icon {
+            padding: $medium-padding;
+            width: 1em;
+            &-spin {
+                display: none;
+                .details__issues-icon--loading & {
+                    display: inline-block;
+                }
+            }
+            &-warning {
+                .details__issues-icon--loading & {
+                    display: none;
+                }
+            }
+        }
+        &-close-btn {
+            padding: $medium-padding;
+            cursor: pointer;
+            align-self: flex-start;
+            opacity: 0.8;
+            transition: opacity $base-duration $base-timing;
+            &:hover {
+                opacity: 1;
             }
         }
     }
