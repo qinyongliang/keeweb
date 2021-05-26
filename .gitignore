@@ -14,7 +14,7 @@ obj/
 xcuserdata/
 *.suo
 .idea/
-.vscode
+.vscode/
 *.iml
 test/dist/
 /utools/

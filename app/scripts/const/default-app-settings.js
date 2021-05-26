@@ -9,7 +9,7 @@ const DefaultAppSettings = {
     autoUpdate: 'install', // auto-update options: "install", "check", ""
     clipboardSeconds: 0, // number of seconds after which the clipboard will be cleared
     autoSave: true, // auto-save open files
-    autoSaveInterval: 0, // interval between performing automatic sync, minutes
+    autoSaveInterval: 0, // interval between performing automatic sync, minutes, -1: on every change
     rememberKeyFiles: 'path', // remember keyfiles selected on the Open screen
     idleMinutes: 15, // app lock timeout after inactivity, minutes
     minimizeOnClose: false, // minimise the app instead of closing
@@ -18,6 +18,7 @@ const DefaultAppSettings = {
     colorfulIcons: false, // use colorful custom icons instead of grayscale
     useMarkdown: true, // use Markdown in Notes field
     directAutotype: true, // if only one matching entry is found, select that one automatically
+    autoTypeTitleFilterEnabled: true, // enable the title filtering in auto-type by default
     titlebarStyle: 'default', // window titlebar style
     lockOnMinimize: true, // lock the app when it's minimized
     lockOnCopy: false, // lock the app after a password was copied
@@ -43,10 +44,12 @@ const DefaultAppSettings = {
     excludePinsFromAudit: true, // exclude PIN codes from audit
     checkPasswordsOnHIBP: false, // check passwords on Have I Been Pwned
     auditPasswordAge: 0, // show warnings about old passwords, number of years, 0 = disabled
-    useLegacyAutoType: false, // use legacy auto-type engine (will be removed in future versions)
     deviceOwnerAuth: null, // Touch ID: null / 'memory' / 'file'
     deviceOwnerAuthTimeoutMinutes: 0, // how often master password is required with Touch ID
     disableOfflineStorage: false, // don't cache loaded files in offline storage
+    shortLivedStorageToken: false, // short-lived sessions in cloud storage providers
+    extensionFocusIfLocked: true, // focus KeeWeb if a browser extension tries to connect while KeeWeb is locked
+    extensionFocusIfEmpty: true, // show the entry selection screen if there's no match found by URL
 
     yubiKeyShowIcon: true, // show an icon to open OTP codes from YubiKey
     yubiKeyAutoOpen: false, // auto-load one-time codes when there are open files

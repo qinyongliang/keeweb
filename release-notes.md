@@ -1,5 +1,56 @@
 Release notes
 -------------
+##### v1.18.6 (2021-05-19)
+`-` fix #1824: saving KDBX3 files with compression disabled  
+`-` fix #1818: extension connection error if browser cannot be identified  
+`-` fix #1820: minimize on close on macOS  
+
+##### v1.18.5 (2021-05-14)
+`-` fix #1816: old Chromium support, such as Android Edge  
+`-` fix #1817: crash on files with large attachments as KDBX3  
+
+##### v1.18.4 (2021-05-12)
+`+` #1814: option to disable auto-type title filter by default  
+`-` #1808: restore KeeWeb from system tray on extension request  
+`-` fix #1810: extension connection on old macOS (10.11)  
+`-` fix #1813: custom icon selection  
+`-` fix #1811: app doesn't quit during update  
+
+##### v1.18.3 (2021-05-09)
+`-` fix #1804: filling OTP in browser extensions  
+`*` fix #1805: auto-unchecking auto-type filters if nothing found  
+`*` fix #1806: fixed a possible config loading error during startup  
+
+##### v1.18.2 (2021-05-08)
+`-` fix #1802: opening files with saved keyfiles  
+
+##### v1.18.1 (2021-05-08)
+`-` fixed entry attachments display  
+
+##### v1.18.0 (2021-05-08)
+`+` browser extension "KeeWeb Connect"  
+`+` support for KeePassXC-Browser  
+`+` optimized memory consumption for large files  
+`+` KDBX4.1 support  
+`+` option to use short-lived tokens in cloud storages  
+`+` opening XML and CSV files using the Open button  
+`*` password generator now includes all selected character ranges  
+`*` option to auto-save on file change  
+`+` better Touch ID error messages  
+`-` legacy auto-type removed  
+`+` displaying the reason why unlock is requested  
+`+` filters on the auto-type entry selection screen  
+`+` adding multiple websites to one entry  
+`+` translated application menu on macOS  
+`-` fixed a crash after disabling USB devices on Linux  
+`+` tightened content security policy  
+`-` KeeWebHttp deprecated  
+
+##### v1.17.6 (2021-04-09)
+`+` team drives support in Google Drive  
+`-` fix #1786: saving refresh_token in Google Drive  
+`-` fix #1767: updater issues on macOS  
+
 ##### v1.17.5 (2021-03-27)
 `+` ykman v4 support  
 `+` fix #1725: setting expiry date in the past  

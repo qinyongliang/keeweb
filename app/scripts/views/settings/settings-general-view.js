@@ -18,6 +18,7 @@ import { SettingsLogsView } from 'views/settings/settings-logs-view';
 import { SettingsPrvView } from 'views/settings/settings-prv-view';
 import { mapObject, minmax } from 'util/fn';
 import { ThemeWatcher } from 'comp/browser/theme-watcher';
+import { NativeModules } from 'comp/launcher/native-modules';
 import template from 'templates/settings/settings-general.hbs';
 
 class SettingsGeneralView extends View {
@@ -52,9 +53,9 @@ class SettingsGeneralView extends View {
         'change .settings__general-use-markdown': 'changeUseMarkdown',
         'change .settings__general-use-group-icon-for-entries': 'changeUseGroupIconForEntries',
         'change .settings__general-direct-autotype': 'changeDirectAutotype',
+        'change .settings__general-autotype-title-filter': 'changeAutoTypeTitleFilter',
         'change .settings__general-field-label-dblclick-autotype':
             'changeFieldLabelDblClickAutoType',
-        'change .settings__general-use-legacy-autotype': 'changeUseLegacyAutoType',
         'change .settings__general-device-owner-auth': 'changeDeviceOwnerAuth',
         'change .settings__general-device-owner-auth-timeout': 'changeDeviceOwnerAuthTimeout',
         'change .settings__general-titlebar-style': 'changeTitlebarStyle',
@@ -63,6 +64,7 @@ class SettingsGeneralView extends View {
         'click .settings__general-download-update-btn': 'downloadUpdate',
         'click .settings__general-update-found-btn': 'installFoundUpdate',
         'change .settings__general-disable-offline-storage': 'changeDisableOfflineStorage',
+        'change .settings__general-short-lived-storage-token': 'changeShortLivedStorageToken',
         'change .settings__general-prv-check': 'changeStorageEnabled',
         'click .settings__general-prv-logout': 'logoutFromStorage',
         'click .settings__general-show-advanced': 'showAdvancedSettings',
@@ -134,17 +136,19 @@ class SettingsGeneralView extends View {
             useMarkdown: AppSettingsModel.useMarkdown,
             useGroupIconForEntries: AppSettingsModel.useGroupIconForEntries,
             directAutotype: AppSettingsModel.directAutotype,
+            autoTypeTitleFilterEnabled: AppSettingsModel.autoTypeTitleFilterEnabled,
             fieldLabelDblClickAutoType: AppSettingsModel.fieldLabelDblClickAutoType,
-            useLegacyAutoType: AppSettingsModel.useLegacyAutoType,
-            supportsTitleBarStyles: Features.supportsTitleBarStyles(),
-            supportsCustomTitleBarAndDraggableWindow: Features.supportsCustomTitleBarAndDraggableWindow(),
+            supportsTitleBarStyles: Features.supportsTitleBarStyles,
+            supportsCustomTitleBarAndDraggableWindow:
+                Features.supportsCustomTitleBarAndDraggableWindow,
             titlebarStyle: AppSettingsModel.titlebarStyle,
             storageProviders,
             showReloadApp: Features.isStandalone,
             hasDeviceOwnerAuth: Features.isDesktop && Features.isMac,
             deviceOwnerAuth: AppSettingsModel.deviceOwnerAuth,
             deviceOwnerAuthTimeout: AppSettingsModel.deviceOwnerAuthTimeoutMinutes,
-            disableOfflineStorage: AppSettingsModel.disableOfflineStorage
+            disableOfflineStorage: AppSettingsModel.disableOfflineStorage,
+            shortLivedStorageToken: AppSettingsModel.shortLivedStorageToken
         });
         this.renderProviderViews(storageProviders);
     }
@@ -329,7 +333,7 @@ class SettingsGeneralView extends View {
     }
 
     changeAutoSaveInterval(e) {
-        const autoSaveInterval = Number(e.target.value) || 0;
+        const autoSaveInterval = e.target.value | 0;
         AppSettingsModel.autoSaveInterval = autoSaveInterval;
     }
 
@@ -429,15 +433,14 @@ class SettingsGeneralView extends View {
         AppSettingsModel.directAutotype = directAutotype;
     }
 
+    changeAutoTypeTitleFilter(e) {
+        const autoTypeTitleFilterEnabled = e.target.checked || false;
+        AppSettingsModel.autoTypeTitleFilterEnabled = autoTypeTitleFilterEnabled;
+    }
+
     changeFieldLabelDblClickAutoType(e) {
         const fieldLabelDblClickAutoType = e.target.checked || false;
         AppSettingsModel.fieldLabelDblClickAutoType = fieldLabelDblClickAutoType;
-        Events.emit('refresh');
-    }
-
-    changeUseLegacyAutoType(e) {
-        const useLegacyAutoType = e.target.checked || false;
-        AppSettingsModel.useLegacyAutoType = useLegacyAutoType;
         Events.emit('refresh');
     }
 
@@ -455,6 +458,9 @@ class SettingsGeneralView extends View {
         this.render();
 
         this.appModel.checkEncryptedPasswordsStorage();
+        if (!deviceOwnerAuth) {
+            NativeModules.hardwareCryptoDeleteKey().catch(() => {});
+        }
     }
 
     changeDeviceOwnerAuthTimeout(e) {
@@ -491,6 +497,16 @@ class SettingsGeneralView extends View {
         AppSettingsModel.disableOfflineStorage = disableOfflineStorage;
         if (disableOfflineStorage) {
             this.appModel.deleteAllCachedFiles();
+        }
+    }
+
+    changeShortLivedStorageToken(e) {
+        const shortLivedStorageToken = e.target.checked;
+        AppSettingsModel.shortLivedStorageToken = shortLivedStorageToken;
+        if (shortLivedStorageToken) {
+            for (const storage of Object.values(Storage)) {
+                storage.deleteStoredToken();
+            }
         }
     }
 
