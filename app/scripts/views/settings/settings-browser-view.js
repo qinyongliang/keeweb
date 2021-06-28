@@ -10,7 +10,7 @@ import {
     BrowserExtensionConnector,
     SupportedBrowsers,
     SupportedExtensions
-} from 'comp/extension/browser-extension-connector';
+} from 'comp/extension/browser-extension-utools-connector';
 import { Alerts } from 'comp/ui/alerts';
 import { DateFormat } from 'comp/i18n/date-format';
 

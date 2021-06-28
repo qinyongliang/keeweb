@@ -3,7 +3,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build-web-app', [
         'clean',
-        'eslint',
+        // 'eslint',
         'copy:html',
         'copy:icons',
         'copy:manifest',

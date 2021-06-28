@@ -18,6 +18,9 @@ const Launcher = {
     platform() {
         return 'utools';
     },
+    electron() {
+        return this.req('electron');
+    },
     openLink(href) {
         if (/^(http|https|ftp|sftp|mailto):/i.test(href)) {
             window.utools.shellOpenExternal(href);

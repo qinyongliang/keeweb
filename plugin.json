@@ -5,6 +5,10 @@
 	"homepage": "https://github.com/qinyongliang/",
 	"preload": "preload.js",
 	"main": "dist/index.html",
+    "development": {
+        "main":"http://localhost:8085/index.html",
+        "preload": "preload.js"
+    },
 	"version": "0.5.1",
 	"logo": "keepass.png",
 	"features": [
