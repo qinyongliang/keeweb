@@ -112,6 +112,7 @@
         "test": "grunt test",
         "postinstall": "cd desktop && npm install",
         "build-beta": "grunt --beta && cp dist/index.html ../keeweb-beta/index.html && cd ../keeweb-beta && git add index.html && git commit -a -m 'beta' && git push origin master",
+        "build-utools": "grunt --bate && cp -r dist utools/ && cp keepass.png utools/ && cp plugin.json utools/ && cp preload.js utools/ && cp README.md utools/",
         "electron": "cross-env KEEWEB_IS_PORTABLE=0 ELECTRON_DISABLE_SECURITY_WARNINGS=1 KEEWEB_HTML_PATH=http://localhost:8085 electron desktop --no-sandbox",
         "dev": "grunt dev",
         "dev-desktop-macos": "grunt dev-desktop-darwin --skip-sign",

@@ -7,20 +7,14 @@ const IoUtoolsCache = function (config) {
 Object.assign(IoUtoolsCache.prototype, {
     save(id, data, callback) {
         const file = Buffer.from(data);
-        const record = window.utools.db.get(this.cacheName);
-        const res = window.utools.db.putAttachment(
-            this.cacheName,
-            id,
-            record?._rev,
-            file,
-            'text/plain'
-        );
+        window.utools.db.remove(id);
+        const res = window.utools.db.postAttachment(id, file, 'text/plain');
         this.logger.debug('cache saved', id, res);
         return callback && callback();
     },
 
     load(id, callback) {
-        const data = window.utools.db.getAttachment(this.cacheName, id);
+        const data = window.utools.db.getAttachment(id);
         if (data) {
             return callback && callback(null, data.buffer);
         }
@@ -28,8 +22,7 @@ Object.assign(IoUtoolsCache.prototype, {
     },
 
     remove(id, callback) {
-        const record = window.utools.db.get(this.cacheName);
-        window.utools.db.removeAttachment(this.cacheName, id, record?._rev);
+        window.utools.db.remove(id);
         return callback && callback();
     }
 });
